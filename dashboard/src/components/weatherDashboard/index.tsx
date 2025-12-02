@@ -46,34 +46,47 @@ const WeatherDashboard = () => {
                 <header className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight text-[#F5D10D]">
-                            {getWeatherIcon(weather[lastIndex].weather[0].main)}
+                            {weather?.[lastIndex]?.weather[0].main ?
+                                getWeatherIcon(weather[lastIndex].weather[0].main) : "clear"}
                             Weather Dashboard</h1>
                         <p className="mt-1 text-slate-300">Clima atual + Insight gerado por IA</p>
                     </div>
                 </header>
 
-                {weather && <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <article className="glass rounded-2xl p-6 shadow-xl flex flex-col gap-4 bg-white/5 backdrop-blur-lg border border-white/10">
                         <div className="flex items-center justify-between px-7">
                             <div >
                                 <h2 className="text-xl font-bold">Clima Atual</h2>
-                                <p className="text-sm text-slate-300">{weather[lastIndex].name}</p>
+                                <p className="text-sm text-slate-300">{weather?.[lastIndex]?.name ?? '--'}</p>
                             </div>
                             <div className="flex items-center gap-4">
 
                                 <div className="text-right">
-                                    <div className="text-4xl font-extrabold">{weather[lastIndex].main.temp}°</div>
-                                    <div className="text-sm text-slate-300">— {weather[lastIndex].weather[0].description} —</div>
+                                    <div className="text-4xl font-extrabold">{weather?.[lastIndex]?.main?.temp ?? '--'}°</div>
+                                    <div className="text-sm text-slate-300">— {weather?.[lastIndex]?.weather?.[0].description ?? '--'} —</div>
                                 </div>
                             </div>
                         </div>
 
 
                         <CardContent className="grid grid-cols-2 gap-3 mt-2">
-                            <WeatherCard label="humidade" data={`${weather[lastIndex].main.humidity} %`} />
-                            <WeatherCard label="Vento" data={`${weather[lastIndex].wind.speed} m/s`} />
-                            <WeatherCard label="Nascer do Sol" data={formatSunTime(weather[lastIndex].sys.sunrise)} />
-                            <WeatherCard label="Por do Sol" data={formatSunTime(weather[lastIndex].sys.sunset)} />
+                            <WeatherCard label="humidade" data={`${weather?.[lastIndex]?.main?.humidity ?? '--'} %`} />
+                            <WeatherCard label="Vento" data={`${weather?.[lastIndex].wind.speed ?? '--'} m/s`} />
+                            <WeatherCard
+                                label="Nascer do Sol"
+                                data={weather?.[lastIndex]?.sys?.sunrise
+                                    ? formatSunTime(weather[lastIndex].sys.sunrise)
+                                    : "--:--"}
+                            />
+
+                            <WeatherCard
+                                label="Por do Sol"
+                                data={weather?.[lastIndex]?.sys?.sunset
+                                    ? formatSunTime(weather[lastIndex].sys.sunset)
+                                    : "--:--"}
+                            />
+
                         </CardContent>
                     </article>
 
@@ -97,7 +110,7 @@ const WeatherDashboard = () => {
                             <span>Última atualização: {dateNow}</span>
                         </div>
                     </Card>
-                </section>}
+                </section>
             </div>
         </main>
     )

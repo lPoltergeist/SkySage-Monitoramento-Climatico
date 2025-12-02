@@ -1,5 +1,5 @@
-import React, { type ReactNode } from 'react'
-import { Card, CardContent } from '../ui/card'
+import { type ReactNode } from 'react'
+import { Card } from '../ui/card'
 
 type weatherCardProps = {
     label: string,

@@ -41,6 +41,7 @@ services:
 
   mongo-express:
     image: mongo-express
+    container_name: mongo-express
     restart: always
     ports:
       - "8081:8081"
@@ -77,6 +78,8 @@ services:
       context: ./worker
       dockerfile: Dockerfile.worker
     depends_on:
+      api:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
@@ -105,11 +108,30 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 55
+      start_period: 5s
     deploy:
       resources:
         limits:
           cpus: "0.5"
           memory: 500M
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile.dashboard
+    container_name: dashboard
+    ports:
+      - "4173:4173"
+    depends_on:
+      api:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   rabbitmq_data:

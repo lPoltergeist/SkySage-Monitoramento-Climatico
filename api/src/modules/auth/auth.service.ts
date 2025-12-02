@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserData, UserDataDocument } from '../../schema/userData.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -27,13 +27,27 @@ export class AuthService {
 
     async login(data: UserData): Promise<UserData | any> {
         const passwordValid = await this.validadePassword(data.email, data.password);
-        if (!passwordValid) {
-            return { error: 'Invalid credentials' };
-        }
+        if (!passwordValid) throw new UnauthorizedException('Invalid credentials.')
+
 
         const user = await this.userModel.findOne({ email: data.email }).exec();
-        if (!user) return { error: 'User not found' };
+        if (!user) throw new UnauthorizedException('User not found.')
 
-        return { id: user._id, email: user.email, name: user.name, token: this.createToken(user) };
+        return {
+            user: { id: user._id, email: user.email, name: user.name },
+            token: this.createToken(user)
+        };
+    }
+
+    async isAuthenticated(token: string) {
+        if (!token) throw new UnauthorizedException;
+
+        try {
+            const payload = this.jwtService.verify(token);
+            return payload
+        } catch {
+            throw new UnauthorizedException;
+        }
+
     }
 }

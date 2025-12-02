@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { WeatherModule } from './schema/weather.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WeatherModule } from './modules/weather/weather.module';
+import { QuotableModule } from './modules/quotable/quotable.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
     WeatherModule,
     UserModule,
     AuthModule,
+    QuotableModule,
   ],
 })
 export class AppModule { }

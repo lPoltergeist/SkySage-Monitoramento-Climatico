@@ -4,12 +4,13 @@ import { api } from '@/lib/api'
 import { Button } from '../ui/button'
 import { toast, ToastContainer } from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css";
+import matchPasswords from '@/helper/matchPasswords'
 import { useNavigate } from 'react-router'
 import { useEffect, type ChangeEvent } from 'react'
-import UseSignInStore from '@/store/validateSignIn'
+import UseSignUpStore from '@/store/validateSignUp'
 
-const Login = () => {
-    const { email, password, setEmail, setPassword, isValid } = UseSignInStore()
+const SignUp = () => {
+    const { email, password, confirmPassword, name, setEmail, setPassword, setConfirmPassword, setName, isValid } = UseSignUpStore()
     const notify = (msg: string) => toast(msg)
     const navigate = useNavigate()
 
@@ -24,14 +25,21 @@ const Login = () => {
             return
         }
 
-        api.post('/auth', {
+        if (!matchPasswords(password, confirmPassword)) return notify("As senhas não batem!")
+
+        api.post('/users', {
+            name: name,
             email: email,
             password: password
         }, {
             withCredentials: true,
         }).then(() => {
-            notify("Login realizado com sucesso!");
-            navigate('/weather')
+            return api.post('/auth', {
+                email,
+                password
+            }, { withCredentials: true });
+        }).then(() => {
+            navigate("/weather")
         })
             .catch((error) => {
                 const msg =
@@ -53,20 +61,16 @@ const Login = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <LoginInput placeholder="email"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
+            <LoginInput placeholder="nome" onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
+            <LoginInput placeholder="email" onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
+            <LoginInput type="password" placeholder="senha" onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
+            <LoginInput type="password" placeholder="confirme a senha" onChange={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)} />
 
-            <LoginInput type="password" placeholder="senha"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
-
-            <div>
-                <Button type="submit" className="mz-4">Sign In</Button>
-                <Button type="button" onClick={() => navigate('/signup')} className="ml-4">Sign Up</Button>
-            </div>
+            <Button type="submit" className="mz-4">Sign Up</Button>
 
             <ToastContainer />
         </form>
     )
 }
 
-export default Login
+export default SignUp

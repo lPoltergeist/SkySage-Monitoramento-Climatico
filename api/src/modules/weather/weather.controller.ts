@@ -6,9 +6,9 @@ import { WeatherData } from '../../schema/weatherData.schema';
 export class WeatherController {
   constructor(private readonly appService: WeatherService) { }
 
-  @Get()
-  getStatus(): string {
-    return this.appService.getStatus();
+  @Get('status')
+  getStatus() {
+    return { status: 'ok', message: 'Service is running' };
   }
 
   @Post('weather')
