@@ -1,21 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserData, UserDataDocument } from '../../schema/userData.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { BlacklistData, BlacklistDataDocument } from 'src/schema/blacklist.schema';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
-    constructor(@InjectModel(UserData.name) private userModel: Model<UserDataDocument>, private jwtService: JwtService) { }
+    constructor(@InjectModel(UserData.name) private userModel: Model<UserDataDocument>,
+        @InjectModel(BlacklistData.name) private blacklistModel: Model<BlacklistDataDocument>,
+        private jwtService: JwtService) { }
 
     private createToken(user: UserData): string {
-        const payload = { email: user.email, name: user.name };
+        const payload = { email: user.email, name: user.name, uuid: randomUUID() };
         return this.jwtService.sign(payload);
     }
 
     async validadePassword(email: string, password: string): Promise<boolean> {
-        console.log('Validating password for email:', email, password);
         const userExists = await this.userModel.findOne({ email: email }).exec();
         if (!userExists) return false
 
@@ -26,12 +29,11 @@ export class AuthService {
     }
 
     async login(data: UserData): Promise<UserData | any> {
-        const passwordValid = await this.validadePassword(data.email, data.password);
-        if (!passwordValid) throw new UnauthorizedException('Invalid credentials.')
-
-
         const user = await this.userModel.findOne({ email: data.email }).exec();
-        if (!user) throw new UnauthorizedException('User not found.')
+        if (!user) throw new UnauthorizedException('Usuário não encontrado.')
+
+        const passwordValid = await this.validadePassword(data.email, data.password);
+        if (!passwordValid) throw new UnauthorizedException('Credeciais inválidas.')
 
         return {
             user: { id: user._id, email: user.email, name: user.name },
@@ -39,15 +41,28 @@ export class AuthService {
         };
     }
 
+    async logout(token: string) {
+        const { uuid } = this.jwtService.decode(token)
+
+        if (!uuid) throw new BadRequestException
+
+        const uuidBlacklisted = new this.blacklistModel({ uuid: uuid })
+
+        await uuidBlacklisted.save()
+
+        return { message: 'Usuário deslogado!' }
+
+    }
+
     async isAuthenticated(token: string) {
-        if (!token) throw new UnauthorizedException;
+        const { uuid } = this.jwtService.decode(token)
 
-        try {
-            const payload = this.jwtService.verify(token);
-            return payload
-        } catch {
-            throw new UnauthorizedException;
-        }
+        if (!uuid) throw new BadRequestException
 
+        const isBlacklisted = await this.blacklistModel.findOne({ uuid: uuid })
+
+        if (isBlacklisted) throw new UnauthorizedException
+
+        return { authenticated: true }
     }
 }

@@ -1,10 +1,10 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import getWeatherIcon from '@/components/weatherDashboard/dinamicWeatherIcon'
+import WeatherCard from '@/components/weatherDashboard/weatherCard'
 import formatSunTime from '@/helper/formatSunTime'
 import returnDateNow from '@/helper/returnDateNow'
 import { api } from '@/lib/api'
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import WeatherCard from './weatherCard'
-import getWeatherIcon from './dinamicWeatherIcon'
 
 const WeatherDashboard = () => {
     const [weather, setWeather] = useState<any>(null)

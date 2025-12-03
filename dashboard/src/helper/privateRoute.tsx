@@ -19,7 +19,7 @@ function PrivateRoute({ children }: { children: ReactNode }) {
   })
 
   if (loading) return <div>Carregando...</div>
-  if (!isAuthorized) return <Navigate to="/" replace />
+  if (!isAuthorized) return <Navigate to="/signin" replace />
 
   return <>{children}</>;
 }

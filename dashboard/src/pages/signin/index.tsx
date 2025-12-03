@@ -1,15 +1,24 @@
-import LoginInput from './input'
+
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { api } from '@/lib/api'
-import { Button } from '../ui/button'
-import { toast, ToastContainer } from 'react-toastify'
+
+import { toast } from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from 'react-router'
 import { useEffect, type ChangeEvent } from 'react'
 import UseSignInStore from '@/store/validateSignIn'
+import { Button } from '@/components/ui/button';
+import LoginInput from '@/components/signin/input';
+import CustomToastContainer from '@/components/toast/custom-toast';
+import z from 'zod';
 
-const Login = () => {
-    const { email, password, setEmail, setPassword, isValid } = UseSignInStore()
+const SignInSchema = z.object({
+    email: z.email("E-mail inválido"),
+    password: z.string().min(6, { message: "A senha deve ter no mínimo 6 caracteres" }),
+})
+
+const SignIn = () => {
+    const { email, password, setEmail, setPassword } = UseSignInStore()
     const notify = (msg: string) => toast(msg)
     const navigate = useNavigate()
 
@@ -19,8 +28,14 @@ const Login = () => {
 
 
     const onSubmit: SubmitHandler<any> = () => {
-        if (!isValid()) {
-            notify("Preencha todos os campos!")
+        const validate = SignInSchema.safeParse({
+            email,
+            password,
+        })
+
+        if (!validate.success) {
+            const msg = validate.error.issues[0].message
+            notify(msg)
             return
         }
 
@@ -31,7 +46,7 @@ const Login = () => {
             withCredentials: true,
         }).then(() => {
             notify("Login realizado com sucesso!");
-            navigate('/weather')
+            navigate('/')
         })
             .catch((error) => {
                 const msg =
@@ -45,7 +60,7 @@ const Login = () => {
     useEffect(() => {
         api.get('/auth/me', { withCredentials: true })
             .then(() => {
-                navigate('/weather', { replace: true });
+                navigate('/', { replace: true });
             })
             .catch(() => {
             });
@@ -59,14 +74,22 @@ const Login = () => {
             <LoginInput type="password" placeholder="senha"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
 
-            <div>
-                <Button type="submit" className="mz-4">Sign In</Button>
-                <Button type="button" onClick={() => navigate('/signup')} className="ml-4">Sign Up</Button>
+            <div className="mt-6">
+                <Button type="button" onClick={() => navigate('/signup')}
+                    className="mz-4 hover:outline-none hover:ring-2 hover:ring-[#F5D10D]">
+                    Sign Up
+                </Button>
+                <Button
+                    type="submit"
+                    className="ml-4 !bg-[#F5D10D] !text-black hover:text-white hover:ring-2"
+                >
+                    Sign In
+                </Button>
             </div>
 
-            <ToastContainer />
+            <CustomToastContainer />
         </form>
     )
 }
 
-export default Login
+export default SignIn

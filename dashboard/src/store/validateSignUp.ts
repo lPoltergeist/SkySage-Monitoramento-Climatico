@@ -1,4 +1,13 @@
+import z from 'zod'
 import { create } from 'zustand'
+
+
+const SignUpSchema = z.object({
+    name: z.string().min(2),
+    email: z.email(),
+    password: z.string().min(6),
+    confirmPassword: z.string().min(6)
+})
 
 interface SignUpState {
     email: string,
@@ -22,8 +31,9 @@ const UseSignUpStore = create<SignUpState>((set, get) => ({
     setConfirmPassword: (confirmPassword) => set({ confirmPassword }),
     setName: (name) => set({ name }),
     isValid: () => {
-        const { email, password } = get()
-        return email.trim() !== '' && password.trim() !== ''
+        const data = get()
+        const result = SignUpSchema.safeParse(data)
+        return result.success
     }
 }))
 

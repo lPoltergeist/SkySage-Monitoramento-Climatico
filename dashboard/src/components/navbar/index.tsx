@@ -3,47 +3,72 @@ import {
     NavigationMenuItem,
     NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { Button } from "../ui/button";
+import { api } from "@/lib/api";
+import { toast } from 'react-toastify'
+import CustomToastContainer from "../toast/custom-toast";
 
 function Navbar() {
+    const notify = (msg: string) => toast(msg)
+    const navigate = useNavigate()
+
+    const logout = () => {
+        api.get('/logout', {
+            withCredentials: true,
+        }).then(() => {
+            notify("Deslogado com sucesso!")
+            navigate('/signin')
+        }).catch((error) => {
+            notify(error);
+        })
+    }
+
     return (
-        <nav className="w-full h-20 flex items-center justify-between px-6 shadow">
+        <>
+            <nav className="w-full h-20 flex items-center justify-between px-6 shadow">
 
-            <div className="text-4xl text-[#F5D10D] font-semibold">
-                SkySage
-            </div>
+                <div className="text-4xl text-[#F5D10D] font-semibold">
+                    SkySage
+                </div>
 
-            <NavigationMenu>
-                <NavigationMenuList className="flex gap-6">
+                <NavigationMenu className="ml-auto">
+                    <NavigationMenuList className="flex gap-6">
 
-                    <NavigationMenuItem>
+                        <NavigationMenuItem>
 
-                        <Link className="
+                            <Link className="
                    !text-white 
                 text-xl font-medium
                 hover:!text-[#F5D10D]
                 cursor-pointer
-              " to="/weather">
-                            Weather</Link>
+              " to="/">
+                                Weather</Link>
 
-                    </NavigationMenuItem>
+                        </NavigationMenuItem>
 
-                    <NavigationMenuItem>
+                        <NavigationMenuItem>
 
-                        <Link className="
+                            <Link className="
                    !text-white 
                 text-xl font-medium
                 hover:!text-[#F5D10D]
                 cursor-pointer
               " to="/quotable">
-                            Quotable</Link>
+                                Quotable</Link>
 
-                    </NavigationMenuItem>
+                        </NavigationMenuItem>
 
-                </NavigationMenuList>
-            </NavigationMenu>
+                        <NavigationMenuItem>
+                            <Button type='button' onClick={() => logout()}>Logout</Button>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
 
-        </nav>
+
+                </NavigationMenu>
+                <CustomToastContainer />
+            </nav>
+        </>
     );
 }
 

@@ -1,4 +1,10 @@
 import { create } from 'zustand'
+import { z } from 'zod'
+
+const SignInSchema = z.object({
+    email: z.email(),
+    password: z.string().min(6),
+})
 
 interface SignInState {
     email: string,
@@ -14,8 +20,9 @@ const UseSignInStore = create<SignInState>((set, get) => ({
     setEmail: (email) => set({ email }),
     setPassword: (password) => set({ password }),
     isValid: () => {
-        const { email, password } = get()
-        return email.trim() !== '' && password.trim() !== ''
+        const data = get()
+        const result = SignInSchema.safeParse(data)
+        return result.success
     }
 }))
 

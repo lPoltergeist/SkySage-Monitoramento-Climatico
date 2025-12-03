@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Req, Res, UnauthorizedException } from '@n
 import { AuthService } from './auth.service';
 import { UserData } from 'src/schema/userData.schema';
 import express from 'express';
+import { PassThrough } from 'stream';
 
 @Controller()
 export class AuthController {
@@ -21,6 +22,12 @@ export class AuthController {
         })
 
         return result.user
+    }
+
+    @Get('logout')
+    async logout(@Req() req: express.Request) {
+        const token = req.cookies['token']
+        this.authService.logout(token)
     }
 
     @Get('auth/me')

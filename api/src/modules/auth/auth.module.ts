@@ -4,7 +4,7 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtModule } from "@nestjs/jwt";
 import { UserModule } from "../user/user.module";
-import { UserService } from "../user/user.service";
+import { BlackistDataSchema, BlacklistData } from "src/schema/blacklist.schema";
 
 
 @Module({
@@ -14,6 +14,11 @@ import { UserService } from "../user/user.service";
             secret: process.env.JWT_SECRET,
             signOptions: { expiresIn: '1d' },
         }),
+
+        MongooseModule.forFeature([
+            { name: BlacklistData.name, schema: BlackistDataSchema, collection: 'blacklist' },
+        ]),
+
         UserModule,
     ],
     controllers: [AuthController],

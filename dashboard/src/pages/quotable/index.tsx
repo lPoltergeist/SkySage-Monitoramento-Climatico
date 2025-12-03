@@ -1,6 +1,6 @@
 import { api } from "@/lib/api"
 import { useEffect, useState } from "react"
-import { Table, TableBody, TableCell, TableRow } from "../ui/table"
+
 import {
     Pagination,
     PaginationContent,
@@ -8,6 +8,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 
 const Quotes = () => {
     const limit = 10
@@ -77,6 +78,7 @@ const Quotes = () => {
                         <PaginationItem>
                             <PaginationPrevious
                                 className={`
+                                    cursor-pointer
           bg-[#F5D10D] text-red-50 hover:bg-[#F5D10D]/80 transition-colors 
           px-4 py-2 rounded-md font-semibold
           ${page === 1 ? "pointer-events-none opacity-40" : ""}
@@ -90,6 +92,7 @@ const Quotes = () => {
                         <PaginationItem>
                             <PaginationNext
                                 className={`
+                                    cursor-pointer
           bg-[#F5D10D] text-red-50 hover:bg-[#F5D10D]/80 transition-colors
           px-4 py-2 rounded-md font-semibold
           ${page === totalPages ? "pointer-events-none opacity-40" : ""}
