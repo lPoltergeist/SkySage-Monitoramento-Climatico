@@ -57,11 +57,14 @@ export class UserService {
     return deletedUser
   }
 
-  updateUser(id: any, data: UserData): UserData | any {
-    const updatedUser = this.userModel.findOneAndUpdate(id, data).exec()
-    if (!updatedUser) throw new BadRequestException
+  async updateUser(id: any, data: UserData): Promise<UserData | any> {
+    if ('password' in data) data.password = await bcrypt.hash(data.password, 10)
 
-    return updatedUser
+    const user = await this.userModel.findOneAndUpdate({ _id: id }, data, { new: true }).exec()
+    if (!user) throw new BadRequestException
+
+    return { email: user.email, name: user.name }
+
   }
 
   private async defaultAdmin() {

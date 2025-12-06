@@ -22,7 +22,7 @@ export class UserController {
   }
 
   @Put('/api/users/:id')
-  updateUserData(@Param() id: string, @Body() data: UserData) {
+  updateUserData(@Param('id') id: string, @Body() data: UserData) {
     return this.userService.updateUser(id, data)
   }
 }

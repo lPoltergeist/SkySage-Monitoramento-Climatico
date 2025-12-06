@@ -12,7 +12,6 @@ export class QuotableService {
         `https://api.quotable.io${endpoint.endpoint}`
       );
 
-      console.log('quote resp:', resp.data)
       return resp.data;
 
     } catch (err: any) {
